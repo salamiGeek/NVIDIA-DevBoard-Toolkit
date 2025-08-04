@@ -23,6 +23,7 @@ RULES_DIR="$(dirname "$0")/rules.d"  # udev规则文件目录
 CH341_RULES_FILE="${RULES_DIR}/99-ch341.rules"  # CH341 udev规则文件
 DFU_RULES_FILE="${RULES_DIR}/99-dfu-devices.rules"  # DFU udev规则文件
 ROBOT_SERIAL_RULES_FILE="${RULES_DIR}/99-robot-serial.rules"  # 机器人串口规则文件
+USB_ACM_RULES_FILE="${RULES_DIR}/70-usbACM.rules"  # USB ACM设备规则文件
 
 echo "======= 开始设备驱动安装 ======="
 
@@ -89,6 +90,12 @@ if [ ! -f "$ROBOT_SERIAL_RULES_FILE" ]; then
     exit 8
 fi
 
+# 检查USB ACM设备规则文件是否存在
+if [ ! -f "$USB_ACM_RULES_FILE" ]; then
+    echo "错误: USB ACM设备规则文件 $USB_ACM_RULES_FILE 不存在!"
+    exit 9
+fi
+
 # 检查软件源文件是否存在（可选检查，不存在时给出警告但不退出）
 if [ ! -f "$SOURCES_LIST_FILE" ]; then
     echo "警告: 软件源文件 $SOURCES_LIST_FILE 不存在，将使用系统默认软件源"
@@ -111,9 +118,18 @@ echo "步骤2.1: 安装机器人串口规则"
 ROBOT_SERIAL_UDEV_RULE="/etc/udev/rules.d/99-robot-serial.rules"
 cp -v "$ROBOT_SERIAL_RULES_FILE" "$ROBOT_SERIAL_UDEV_RULE"
 echo "已安装机器人串口规则：$ROBOT_SERIAL_UDEV_RULE"
+
+# --------------------- 安装USB ACM设备规则 ---------------------
+echo "步骤2.2: 安装USB ACM设备规则"
+USB_ACM_UDEV_RULE="/etc/udev/rules.d/70-usbACM.rules"
+cp -v "$USB_ACM_RULES_FILE" "$USB_ACM_UDEV_RULE"
+echo "已安装USB ACM设备规则：$USB_ACM_UDEV_RULE"
+
+# 重载所有udev规则
+echo "重载udev规则..."
 udevadm control --reload-rules
 udevadm trigger
-echo "√ 机器人串口规则安装完成"
+echo "√ 所有udev规则安装完成"
 
 # --------------------- 安装基础工具 ---------------------
 echo "步骤3: 安装基础系统工具"
@@ -201,6 +217,7 @@ echo "udev规则验证："
 [ -f "/etc/udev/rules.d/99-ch341.rules" ] && echo "状态: CH341 udev规则已安装" || echo "警告: CH341 udev规则未安装!"
 [ -f "/etc/udev/rules.d/99-dfu-devices.rules" ] && echo "状态: DFU udev规则已安装" || echo "警告: DFU udev规则未安装!"
 [ -f "/etc/udev/rules.d/99-robot-serial.rules" ] && echo "状态: 机器人串口规则已安装" || echo "警告: 机器人串口规则未安装!"
+[ -f "/etc/udev/rules.d/70-usbACM.rules" ] && echo "状态: USB ACM设备规则已安装" || echo "警告: USB ACM设备规则未安装!"
 
 # --------------------- 清理和建议 ---------------------
 echo "步骤7: 清理和后续建议"

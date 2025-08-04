@@ -1,0 +1,4 @@
+KERNEL=="ttyACM1", MODE="0777"
+KERNEL=="ttyACM*", SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5741", MODE:="0667", SYMLINK+="robotForelimb"
+KERNEL=="ttyACM*", SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5740", MODE:="0667", SYMLINK+="robotHindlimb"
+KERNEL=="ttyACM*", SUBSYSTEMS=="usb", ATTRS{idVendor}=="0483", ATTRS{idProduct}=="5742", MODE:="0667", SYMLINK+="robotWheel"
