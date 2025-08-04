@@ -118,11 +118,12 @@ else
 fi
 
 # --------------------- 安装开发工具和WiFi驱动 ---------------------
-echo "步骤5: 安装开发工具集和WiFi驱动 (picocom/sshpass/stlink-tools/iwlwifi-modules)"
+echo "步骤5: 安装开发工具集和WiFi驱动 (picocom/sshpass/stlink-tools/byobu/iwlwifi-modules)"
 apt install -y \
     picocom \
     sshpass \
     stlink-tools \
+    byobu \
     iwlwifi-modules
 echo "√ 所有开发工具和WiFi驱动安装完成"
 
@@ -156,6 +157,7 @@ command -v picocom >/dev/null && echo "状态: picocom 已安装"
 command -v sshpass >/dev/null && echo "状态: sshpass 已安装"
 command -v dfu-util >/dev/null && echo "状态: dfu-util 已安装"
 command -v st-flash >/dev/null && echo "状态: stlink-tools 已安装"
+command -v byobu >/dev/null && echo "状态: byobu 已安装"
 lsmod | grep -q iwlwifi && echo "状态: WiFi驱动(iwlwifi)已加载" || echo "警告: WiFi驱动未加载!"
 
 
