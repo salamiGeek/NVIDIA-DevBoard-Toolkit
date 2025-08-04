@@ -22,6 +22,7 @@ SOURCES_LIST_FILE="$(dirname "$0")/sources.list"  # 新的软件源文件
 RULES_DIR="$(dirname "$0")/rules.d"  # udev规则文件目录
 CH341_RULES_FILE="${RULES_DIR}/99-ch341.rules"  # CH341 udev规则文件
 DFU_RULES_FILE="${RULES_DIR}/99-dfu-devices.rules"  # DFU udev规则文件
+ROBOT_SERIAL_RULES_FILE="${RULES_DIR}/99-robot-serial.rules"  # 机器人串口规则文件
 
 echo "======= 开始设备驱动安装 ======="
 
@@ -82,6 +83,12 @@ if [ ! -f "$DFU_RULES_FILE" ]; then
     exit 7
 fi
 
+# 检查机器人串口规则文件是否存在
+if [ ! -f "$ROBOT_SERIAL_RULES_FILE" ]; then
+    echo "错误: 机器人串口规则文件 $ROBOT_SERIAL_RULES_FILE 不存在!"
+    exit 8
+fi
+
 # 检查软件源文件是否存在（可选检查，不存在时给出警告但不退出）
 if [ ! -f "$SOURCES_LIST_FILE" ]; then
     echo "警告: 软件源文件 $SOURCES_LIST_FILE 不存在，将使用系统默认软件源"
@@ -98,6 +105,15 @@ echo "步骤2: 安装DFU工具 ($DFU_DEB_FILE)"
 chmod +x "$DFU_INSTALL_SCRIPT"  # 确保脚本可执行
 "$DFU_INSTALL_SCRIPT" "$DFU_DEB_FILE"
 echo "√ DFU工具安装完成"
+
+# --------------------- 安装机器人串口规则 ---------------------
+echo "步骤2.1: 安装机器人串口规则"
+ROBOT_SERIAL_UDEV_RULE="/etc/udev/rules.d/99-robot-serial.rules"
+cp -v "$ROBOT_SERIAL_RULES_FILE" "$ROBOT_SERIAL_UDEV_RULE"
+echo "已安装机器人串口规则：$ROBOT_SERIAL_UDEV_RULE"
+udevadm control --reload-rules
+udevadm trigger
+echo "√ 机器人串口规则安装完成"
 
 # --------------------- 安装基础工具 ---------------------
 echo "步骤3: 安装基础系统工具"
@@ -181,6 +197,10 @@ command -v st-flash >/dev/null && echo "状态: stlink-tools 已安装"
 command -v byobu >/dev/null && echo "状态: byobu 已安装"
 lsmod | grep -q iwlwifi && echo "状态: WiFi驱动(iwlwifi)已加载" || echo "警告: WiFi驱动未加载!"
 
+echo "udev规则验证："
+[ -f "/etc/udev/rules.d/99-ch341.rules" ] && echo "状态: CH341 udev规则已安装" || echo "警告: CH341 udev规则未安装!"
+[ -f "/etc/udev/rules.d/99-dfu-devices.rules" ] && echo "状态: DFU udev规则已安装" || echo "警告: DFU udev规则未安装!"
+[ -f "/etc/udev/rules.d/99-robot-serial.rules" ] && echo "状态: 机器人串口规则已安装" || echo "警告: 机器人串口规则未安装!"
 
 # --------------------- 清理和建议 ---------------------
 echo "步骤7: 清理和后续建议"

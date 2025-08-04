@@ -17,6 +17,7 @@
 ### udev规则文件
 - `rules.d/99-ch341.rules` - CH341设备的udev规则文件
 - `rules.d/99-dfu-devices.rules` - DFU设备的udev规则文件
+- `rules.d/99-robot-serial.rules` - 机器人串口设备的udev规则文件
 
 ### AppImage应用管理工具
 - `install_appimage.sh` - AppImage应用安装脚本
@@ -33,6 +34,7 @@
 - ✅ 安装WiFi驱动支持
 - ✅ AppImage应用程序管理
 - ✅ 独立的udev规则配置
+- ✅ 机器人串口设备自动识别（热插拔支持）
 
 ## 系统要求
 
@@ -84,6 +86,7 @@ sudo ./install_dfu.sh /path/to/dfu-util.deb
 - 驱动加载状态
 - 工具安装状态
 - WiFi驱动状态
+- udev规则安装状态
 
 ## 注意事项
 
@@ -91,6 +94,7 @@ sudo ./install_dfu.sh /path/to/dfu-util.deb
 2. 安装过程中可能需要重启系统以应用某些更改
 3. 如遇NVIDIA包冲突，脚本会自动处理并提供解决建议
 4. udev规则文件存放在rules.d目录中，安装时会自动复制到系统目录
+5. 机器人串口设备支持热插拔，插入后会自动创建设备链接(/dev/ttyRobotSerial)
 
 ## 故障排除
 
@@ -103,6 +107,12 @@ sudo ./install_dfu.sh /path/to/dfu-util.deb
 ### DFU工具问题
 - 验证安装：`dfu-util --version`
 - 检查udev规则：`cat /etc/udev/rules.d/99-dfu-devices.rules`
+- 重载udev规则：`sudo udevadm control --reload-rules && sudo udevadm trigger`
+
+### 机器人串口问题
+- 检查设备是否正确连接
+- 检查设备节点：`ls -l /dev/ttyRobotSerial`
+- 检查udev规则：`cat /etc/udev/rules.d/99-robot-serial.rules`
 - 重载udev规则：`sudo udevadm control --reload-rules && sudo udevadm trigger`
 
 ### WiFi驱动问题
