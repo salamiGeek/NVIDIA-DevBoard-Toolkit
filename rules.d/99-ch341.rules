@@ -1,0 +1,5 @@
+# udev rules for CH341 USB to serial converter
+# This file should be placed in /etc/udev/rules.d/
+
+# Set permissions for CH341 serial device (USB ID 1a86:7523)
+SUBSYSTEM=="tty", ATTRS{idVendor}=="1a86", ATTRS{idProduct}=="7523", MODE="0666" 

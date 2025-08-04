@@ -18,6 +18,8 @@ fi
 # --------------------- 参数检查 ---------------------
 DFU_DEB_FILE="${1:-$(dirname "$0")/dfu-util_0.11-3_arm64.deb}"  # dfu-util deb文件路径参数
 DFU_UDEV_RULE="/etc/udev/rules.d/99-dfu-devices.rules"
+SCRIPT_DIR="$(dirname "$0")"
+RULES_SRC="${SCRIPT_DIR}/rules.d/99-dfu-devices.rules"
 
 echo "======= 开始 DFU 工具安装 ======="
 
@@ -26,6 +28,12 @@ if [ ! -f "$DFU_DEB_FILE" ]; then
     echo "错误: dfu-util deb文件 $DFU_DEB_FILE 未找到!"
     echo "用法: $0 [dfu-util_deb_file_path]"
     exit 2
+fi
+
+# 检查 udev 规则文件是否存在
+if [ ! -f "$RULES_SRC" ]; then
+    echo "错误：udev 规则文件 $RULES_SRC 不存在"
+    exit 3
 fi
 
 # --------------------- 安装dfu-util本地deb文件 ---------------------
@@ -43,8 +51,9 @@ fi
 
 # --------------------- 写入 dfu udev 规则 ---------------------
 echo "步骤2: 写入 dfu udev 规则"
-echo "SUBSYSTEM==\"usb\", ATTRS{idVendor}==\"28e9\", ATTRS{idProduct}==\"0189\", MODE=\"0666\"" > "$DFU_UDEV_RULE"
-echo "已创建 udev 规则：$DFU_UDEV_RULE"
+# 复制 udev 规则文件
+cp -v "$RULES_SRC" "$DFU_UDEV_RULE"
+echo "已安装 udev 规则：$DFU_UDEV_RULE"
 
 echo "步骤3: 重载udev 规则"
 udevadm control --reload-rules
@@ -59,7 +68,7 @@ if command -v dfu-util >/dev/null; then
     dfu-util --version
 else
     echo "✗ dfu-util 安装失败"
-    exit 3
+    exit 4
 fi
 
 # 验证 udev 规则
@@ -69,7 +78,7 @@ if [ -f "$DFU_UDEV_RULE" ]; then
     cat "$DFU_UDEV_RULE"
 else
     echo "✗ udev 规则创建失败"
-    exit 4
+    exit 5
 fi
 
 echo "======= DFU 工具安装完成! ======="

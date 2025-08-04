@@ -14,6 +14,10 @@
 - `dfu-util_0.11-3_arm64.deb` - DFU工具Debian安装包
 - `sources.list` - 优化的APT软件源配置（清华大学镜像）
 
+### udev规则文件
+- `rules.d/99-ch341.rules` - CH341设备的udev规则文件
+- `rules.d/99-dfu-devices.rules` - DFU设备的udev规则文件
+
 ### AppImage应用管理工具
 - `install_appimage.sh` - AppImage应用安装脚本
 - `uninstall_appimage.sh` - AppImage应用卸载脚本
@@ -28,6 +32,7 @@
 - ✅ 安装开发必备工具（picocom/sshpass/stlink-tools等）
 - ✅ 安装WiFi驱动支持
 - ✅ AppImage应用程序管理
+- ✅ 独立的udev规则配置
 
 ## 系统要求
 
@@ -85,6 +90,7 @@ sudo ./install_dfu.sh /path/to/dfu-util.deb
 1. 所有系统级操作需要root或sudo权限
 2. 安装过程中可能需要重启系统以应用某些更改
 3. 如遇NVIDIA包冲突，脚本会自动处理并提供解决建议
+4. udev规则文件存放在rules.d目录中，安装时会自动复制到系统目录
 
 ## 故障排除
 
@@ -92,6 +98,7 @@ sudo ./install_dfu.sh /path/to/dfu-util.deb
 - 检查设备是否正确连接
 - 查看内核消息：`dmesg | grep ch341`
 - 检查设备节点：`ls -l /dev/ttyCH341*`
+- 检查udev规则：`cat /etc/udev/rules.d/99-ch341.rules`
 
 ### DFU工具问题
 - 验证安装：`dfu-util --version`

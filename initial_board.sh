@@ -19,6 +19,9 @@ INSTALL_SCRIPT="$(dirname "$0")/install_ch341.sh"
 DFU_INSTALL_SCRIPT="$(dirname "$0")/install_dfu.sh"
 DFU_DEB_FILE="${2:-$(dirname "$0")/dfu-util_0.11-3_arm64.deb}"  # 添加本地dfu-util deb文件参数
 SOURCES_LIST_FILE="$(dirname "$0")/sources.list"  # 新的软件源文件
+RULES_DIR="$(dirname "$0")/rules.d"  # udev规则文件目录
+CH341_RULES_FILE="${RULES_DIR}/99-ch341.rules"  # CH341 udev规则文件
+DFU_RULES_FILE="${RULES_DIR}/99-dfu-devices.rules"  # DFU udev规则文件
 
 echo "======= 开始设备驱动安装 ======="
 
@@ -59,6 +62,24 @@ fi
 if [ ! -f "$DFU_INSTALL_SCRIPT" ]; then
     echo "错误: DFU安装脚本 $DFU_INSTALL_SCRIPT 不存在!"
     exit 4
+fi
+
+# 检查rules.d目录是否存在
+if [ ! -d "$RULES_DIR" ]; then
+    echo "错误: udev规则目录 $RULES_DIR 不存在!"
+    exit 5
+fi
+
+# 检查CH341 udev规则文件是否存在
+if [ ! -f "$CH341_RULES_FILE" ]; then
+    echo "错误: CH341 udev规则文件 $CH341_RULES_FILE 不存在!"
+    exit 6
+fi
+
+# 检查DFU udev规则文件是否存在
+if [ ! -f "$DFU_RULES_FILE" ]; then
+    echo "错误: DFU udev规则文件 $DFU_RULES_FILE 不存在!"
+    exit 7
 fi
 
 # 检查软件源文件是否存在（可选检查，不存在时给出警告但不退出）

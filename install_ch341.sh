@@ -14,6 +14,8 @@ KERNEL_VERSION=$(uname -r)
 TARGET_DIR="/lib/modules/$KERNEL_VERSION/kernel/drivers/usb/serial"
 UDEV_RULE="/etc/udev/rules.d/99-ch341.rules"
 MODULES_FILE="/etc/modules"
+SCRIPT_DIR="$(dirname "$0")"
+RULES_SRC="${SCRIPT_DIR}/rules.d/99-ch341.rules"
 
 # 检查 root 权限
 if [ "$EUID" -ne 0 ]; then
@@ -24,6 +26,12 @@ fi
 # 检查 .ko 文件是否存在
 if [ ! -f "$KO_PATH" ]; then
     echo "错误：文件 $KO_PATH 不存在"
+    exit 1
+fi
+
+# 检查 udev 规则文件是否存在
+if [ ! -f "$RULES_SRC" ]; then
+    echo "错误：udev 规则文件 $RULES_SRC 不存在"
     exit 1
 fi
 
@@ -56,8 +64,9 @@ else
 fi
 
 printf "\n=== 步骤 4：配置 Udev 规则 ==="
-echo "SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"1a86\", ATTRS{idProduct}==\"7523\", MODE=\"0666\"" > $UDEV_RULE
-echo "已创建 udev 规则：$UDEV_RULE"
+# 复制 udev 规则文件
+cp -v "$RULES_SRC" "$UDEV_RULE"
+echo "已安装 udev 规则：$UDEV_RULE"
 
 printf "\n=== 步骤 5：加载驱动并验证 ==="
 udevadm control --reload-rules
