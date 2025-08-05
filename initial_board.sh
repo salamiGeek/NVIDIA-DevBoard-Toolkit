@@ -171,14 +171,15 @@ else
 fi
 
 # --------------------- 安装开发工具和WiFi驱动 ---------------------
-echo "步骤5: 安装开发工具集和WiFi驱动 (picocom/sshpass/stlink-tools/byobu/iwlwifi-modules)"
+echo "步骤5: 安装开发工具集、Python环境和WiFi驱动 (picocom/sshpass/stlink-tools/byobu/python3.10-venv/iwlwifi-modules)"
 apt install -y \
     picocom \
     sshpass \
     stlink-tools \
     byobu \
+    python3.10-venv \
     iwlwifi-modules
-echo "√ 所有开发工具和WiFi驱动安装完成"
+echo "√ 所有开发工具、Python环境和WiFi驱动安装完成"
 
 # --------------------- 验证WiFi驱动 ---------------------
 echo "步骤5.1: 验证WiFi驱动安装"
@@ -211,6 +212,7 @@ command -v sshpass >/dev/null && echo "状态: sshpass 已安装"
 command -v dfu-util >/dev/null && echo "状态: dfu-util 已安装"
 command -v st-flash >/dev/null && echo "状态: stlink-tools 已安装"
 command -v byobu >/dev/null && echo "状态: byobu 已安装"
+dpkg -l | grep -q python3.10-venv && echo "状态: python3.10-venv 已安装" || echo "警告: python3.10-venv 未安装!"
 lsmod | grep -q iwlwifi && echo "状态: WiFi驱动(iwlwifi)已加载" || echo "警告: WiFi驱动未加载!"
 
 echo "udev规则验证："
