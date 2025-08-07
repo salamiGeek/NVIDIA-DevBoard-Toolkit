@@ -136,10 +136,10 @@ echo "步骤3: 安装基础系统工具"
 apt update -qq
 
 echo "安装NVIDIA驱动更新所需的基础工具..."
-apt install -y cpio gzip findutils || {
+apt install -y cpio gzip findutils busybox || {
     echo "警告: 基础工具安装失败，尝试修复..."
     apt --fix-broken install -y
-    apt install -y cpio gzip findutils
+    apt install -y cpio gzip findutils busybox
 }
 echo "√ 基础工具安装完成"
 
@@ -204,6 +204,7 @@ echo "基础工具验证："
 command -v cpio >/dev/null && echo "状态: cpio 已安装" || echo "警告: cpio 未安装!"
 command -v gzip >/dev/null && echo "状态: gzip 已安装" || echo "警告: gzip 未安装!"
 command -v find >/dev/null && echo "状态: findutils 已安装" || echo "警告: findutils 未安装!"
+command -v busybox >/dev/null && echo "状态: busybox 已安装" || echo "警告: busybox 未安装!"
 
 echo "驱动和工具验证："
 lsmod | grep -q ch341 && echo "状态: CH341 驱动已加载" || echo "警告: CH341 驱动未加载!"
