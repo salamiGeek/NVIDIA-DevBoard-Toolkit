@@ -1,0 +1,11 @@
+[Unit]
+Description=Initialize GPIO pins at boot
+After=multi-user.target
+
+[Service]
+Type=oneshot
+ExecStart=/etc/gpio/initial_gpio.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target 

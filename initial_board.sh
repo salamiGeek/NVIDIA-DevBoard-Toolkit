@@ -24,6 +24,9 @@ CH341_RULES_FILE="${RULES_DIR}/99-ch341.rules"  # CH341 udev规则文件
 DFU_RULES_FILE="${RULES_DIR}/99-dfu-devices.rules"  # DFU udev规则文件
 ROBOT_SERIAL_RULES_FILE="${RULES_DIR}/99-robot-serial.rules"  # 机器人串口规则文件
 USB_ACM_RULES_FILE="${RULES_DIR}/70-usbACM.rules"  # USB ACM设备规则文件
+GPIO_DIR="$(dirname "$0")/gpio"  # GPIO相关文件目录
+GPIO_SCRIPT="${GPIO_DIR}/initial_gpio.sh"  # GPIO初始化脚本
+GPIO_SERVICE="${GPIO_DIR}/gpio-init.service"  # GPIO初始化服务文件
 
 echo "======= 开始设备驱动安装 ======="
 
@@ -233,9 +236,52 @@ if apt-mark showhold | grep -q nvidia-l4t-initrd; then
     echo "  sudo apt install --reinstall nvidia-l4t-initrd"
 fi
 
+# --------------------- 配置GPIO初始化脚本开机启动 ---------------------
+echo "步骤8: 配置GPIO初始化脚本开机启动"
+
+# 检查GPIO目录是否存在
+if [ ! -d "$GPIO_DIR" ]; then
+    echo "错误: GPIO目录 $GPIO_DIR 不存在!"
+    exit 10
+fi
+
+# 检查GPIO初始化脚本是否存在
+if [ ! -f "$GPIO_SCRIPT" ]; then
+    echo "错误: GPIO初始化脚本 $GPIO_SCRIPT 不存在!"
+    exit 11
+fi
+
+# 检查GPIO服务文件是否存在
+if [ ! -f "$GPIO_SERVICE" ]; then
+    echo "错误: GPIO服务文件 $GPIO_SERVICE 不存在!"
+    exit 12
+fi
+
+# 创建目标目录
+echo "创建GPIO文件目录..."
+mkdir -p /etc/gpio
+
+# 复制GPIO初始化脚本到系统目录
+echo "复制GPIO初始化脚本..."
+cp -v "$GPIO_SCRIPT" /etc/gpio/
+chmod +x /etc/gpio/initial_gpio.sh
+
+# 复制systemd服务文件
+echo "安装GPIO初始化服务..."
+cp -v "$GPIO_SERVICE" /etc/systemd/system/
+
+# 启用并启动服务
+echo "启用GPIO初始化服务..."
+systemctl daemon-reload
+systemctl enable gpio-init.service
+systemctl start gpio-init.service
+
+echo "√ GPIO初始化脚本已配置为开机启动"
+
 echo "建议："
 echo "1. 重启系统以确保所有驱动正常加载"
 echo "2. 重启后检查WiFi是否正常工作"
 echo "3. 如有WiFi问题，可尝试: sudo systemctl restart NetworkManager"
+echo "4. GPIO初始化已配置为开机自动运行"
 
 echo "======= 所有操作已完成! ======="
