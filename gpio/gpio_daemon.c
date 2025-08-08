@@ -342,6 +342,9 @@ void handle_command(char *cmd, char *response) {
             case STATE_DFU:
                 strcpy(response, "STATUS:DFU");
                 break;
+            case STATE_TEST:
+                strcpy(response, "STATUS:TEST");
+                break;
             default:
                 strcpy(response, "STATUS:UNKNOWN");
         }
