@@ -36,33 +36,33 @@ echo -e "${GREEN}GPIO守护进程正在运行${NC}"
 
 # 测试状态查询
 echo -e "\n${YELLOW}测试状态查询...${NC}"
-response=$(echo "status" | nc localhost $PORT)
+response=$(echo -n "status" | nc localhost $PORT)
 echo -e "${BLUE}响应: ${response}${NC}"
 
 # 测试正常模式
 echo -e "\n${YELLOW}测试设置为正常模式...${NC}"
-response=$(echo "normal" | nc localhost $PORT)
+response=$(echo -n "normal" | nc localhost $PORT)
 echo -e "${BLUE}响应: ${response}${NC}"
 
 sleep 1
 
 # 测试复位功能
 echo -e "\n${YELLOW}测试复位功能...${NC}"
-response=$(echo "reset" | nc localhost $PORT)
+response=$(echo -n "reset" | nc localhost $PORT)
 echo -e "${BLUE}响应: ${response}${NC}"
 
 sleep 1
 
 # 测试DFU模式
 echo -e "\n${YELLOW}测试进入DFU模式...${NC}"
-response=$(echo "dfu" | nc localhost $PORT)
+response=$(echo -n "dfu" | nc localhost $PORT)
 echo -e "${BLUE}响应: ${response}${NC}"
 
 sleep 1
 
 # 恢复正常模式
 echo -e "\n${YELLOW}恢复正常模式...${NC}"
-response=$(echo "normal" | nc localhost $PORT)
+response=$(echo -n "normal" | nc localhost $PORT)
 echo -e "${BLUE}响应: ${response}${NC}"
 
 echo -e "\n${GREEN}测试完成${NC}"
