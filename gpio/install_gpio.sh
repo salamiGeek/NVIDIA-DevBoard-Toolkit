@@ -95,7 +95,4 @@ echo "  echo -n 'reset'  | nc localhost 8888      # 复位单片机"
 echo "  echo -n 'dfu'    | nc localhost 8888      # 进入DFU模式"
 echo "  echo -n 'test'   | nc localhost 8888      # 进入测试模式（每3秒跳变）"
 echo "  echo -n 'test_exit' | nc localhost 8888   # 退出测试模式"
-echo -e "${YELLOW}如需完整测试，可运行:${NC}"
-echo "  ./test_gpio_daemon.sh"
-
 exit 0 

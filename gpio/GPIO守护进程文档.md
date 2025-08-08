@@ -27,7 +27,8 @@ GPIO守护进程（gpio_daemon）是一个用于控制单片机复位和DFU模�
 
 2. 运行安装脚本：
    ```bash
-   sudo ./install_gpio_daemon.sh
+   cd gpio
+   sudo ./install_gpio.sh
    ```
 
 3. 检查服务是否正常运行：
@@ -129,43 +130,30 @@ GPIO守护进程的测试可以在以下两种环境中进行：
 1. **实际硬件环境**：在NVIDIA Jetson设备上进行实际的GPIO操作测试
 2. **模拟测试环境**：在没有实际硬件的情况下，使用模拟程序进行功能测试
 
-### 5.2 测试工具
+### 5.2 测试方式
 
-本项目提供了以下测试工具：
+无需额外脚本，使用 nc 命令直接测试 RPC 接口（见下文“快速测试”）。
 
-1. **compile_test.sh**：编译测试脚本，用于编译GPIO守护进程
-2. **test_gpio_daemon.sh**：自动化测试脚本，用于测试GPIO守护进程的RPC接口
-3. **test_mock.c**：模拟程序，模拟GPIO守护进程的RPC接口功能
-4. **test_gpio_client.py**：Python客户端，用于测试RPC接口
+### 5.3 快速测试
 
-### 5.3 编译测试
-
-使用编译测试脚本进行编译：
+安装完成后，可直接通过 nc 进行快速测试：
 
 ```bash
-./compile_test.sh
+echo -n "status" | nc localhost 8888
 ```
 
-该脚本会检查依赖项并编译GPIO守护进程。如果编译成功，将生成`gpio_daemon`可执行文件。
+常用测试命令：
+```bash
+echo -n "normal" | nc localhost 8888
+echo -n "reset"  | nc localhost 8888
+echo -n "dfu"    | nc localhost 8888
+echo -n "test"   | nc localhost 8888
+echo -n "test_exit" | nc localhost 8888
+```
 
 ### 5.4 模拟测试
 
-如果没有实际硬件，可以使用模拟程序进行测试：
-
-1. 编译模拟程序：
-   ```bash
-   gcc -Wall -o test_mock test_mock.c
-   ```
-
-2. 运行模拟程序：
-   ```bash
-   ./test_mock
-   ```
-
-3. 使用Python客户端测试模拟程序：
-   ```bash
-   ./test_gpio_client.py
-   ```
+（已移除模拟测试示例）
 
 ### 5.5 实际硬件测试
 
@@ -173,7 +161,8 @@ GPIO守护进程的测试可以在以下两种环境中进行：
 
 1. 安装GPIO守护进程：
    ```bash
-   sudo ./install_gpio_daemon.sh
+   cd gpio
+   sudo ./install_gpio.sh
    ```
 
 2. 检查服务状态：
@@ -181,39 +170,51 @@ GPIO守护进程的测试可以在以下两种环境中进行：
    systemctl status gpio-daemon.service
    ```
 
-3. 使用测试脚本进行测试：
-   ```bash
-   sudo ./test_gpio_daemon.sh
-   ```
+3. 使用 nc 进行测试（示例见“快速测试”小节）
 
-4. 使用Python客户端进行交互式测试：
-   ```bash
-   ./test_gpio_client.py
-   ```
 
-### 5.6 命令行参数测试
+### 5.6 命令行测试
 
-使用Python客户端测试命令行参数：
+使用 nc 命令进行测试（示例）：
 
 ```bash
-# 查询状态
-./test_gpio_client.py -c status
+echo -n "status" | nc localhost 8888
 
-# 设置为正常模式
-./test_gpio_client.py -c normal
-
-# 复位单片机
-./test_gpio_client.py -c reset
-
-# 进入DFU模式
-./test_gpio_client.py -c dfu
-
-# 运行自动测试
-./test_gpio_client.py -c auto
-
-# 指定主机和端口
-./test_gpio_client.py -H 192.168.1.100 -p 8888
+echo -n "normal" | nc localhost 8888
+echo -n "reset"  | nc localhost 8888
+echo -n "dfu"    | nc localhost 8888
+echo -n "test"   | nc localhost 8888
+echo -n "test_exit" | nc localhost 8888
 ```
+
+#### C 语言客户端测试工具（可选）
+
+编译：
+```bash
+cd gpio
+gcc -Wall -O2 -o test_gpio_client test_gpio_client.c
+```
+
+用法：
+- 单次命令
+  ```bash
+  ./test_gpio_client -c status
+  ./test_gpio_client -c test
+  ./test_gpio_client -c test_exit
+  ```
+- 自动测试
+  ```bash
+  ./test_gpio_client -A
+  ```
+- 指定主机和端口
+  ```bash
+  ./test_gpio_client -H 127.0.0.1 -p 8888 -c status
+  ```
+- 交互模式（默认，无参数）
+  ```bash
+  ./test_gpio_client
+  # 输入: status / normal / reset / dfu / test / test_exit / exit
+  ```
 
 ### 5.7 测试结果验证
 
