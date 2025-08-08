@@ -37,7 +37,7 @@ fi
 
 # 编译GPIO守护进程
 echo -e "${YELLOW}编译GPIO守护进程...${NC}"
-gcc -Wall -o gpio_daemon gpio_daemon.c -lgpiod
+gcc -Wall -o gpio_daemon_new gpio_daemon.c -lgpiod
 
 # 检查编译是否成功
 if [ $? -ne 0 ]; then
@@ -47,10 +47,20 @@ fi
 
 echo -e "${GREEN}编译成功!${NC}"
 
+# 检查服务是否正在运行，如果是则先停止
+if systemctl is-active --quiet gpio-daemon.service; then
+    echo -e "${YELLOW}停止现有的GPIO守护进程服务...${NC}"
+    systemctl stop gpio-daemon.service
+    # 等待服务完全停止
+    sleep 2
+fi
+
 # 复制可执行文件到系统目录
 echo -e "${YELLOW}安装GPIO守护进程...${NC}"
-cp gpio_daemon /usr/local/bin/
+cp gpio_daemon_new /usr/local/bin/gpio_daemon
 chmod +x /usr/local/bin/gpio_daemon
+# 删除临时文件
+rm -f gpio_daemon_new
 
 # 安装服务文件
 echo -e "${YELLOW}安装系统服务...${NC}"
