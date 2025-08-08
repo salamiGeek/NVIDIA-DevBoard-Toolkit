@@ -29,8 +29,8 @@
 #include <pthread.h> // 添加pthread头文件
 
 /* 定义GPIO引脚 */
-#define PH40_RESET_PIN 106  // 复位引脚
-#define PH40_BOOT_PIN  41  // BOOT引脚
+#define PH40_RESET_PIN 106  // 复位引脚(31)
+#define PH40_BOOT_PIN  105  // BOOT引脚(29)
 
 /* 定义状态 */
 #define STATE_NORMAL   0   // 正常运行状态
