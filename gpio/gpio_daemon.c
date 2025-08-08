@@ -28,8 +28,8 @@
 #include <gpiod.h>
 
 /* 定义GPIO引脚 */
-#define PH40_RESET_PIN 31  // 复位引脚
-#define PH40_BOOT_PIN  32  // BOOT引脚
+#define PH40_RESET_PIN 106  // 复位引脚
+#define PH40_BOOT_PIN  41  // BOOT引脚
 
 /* 定义状态 */
 #define STATE_NORMAL   0   // 正常运行状态

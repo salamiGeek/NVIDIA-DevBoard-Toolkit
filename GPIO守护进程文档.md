@@ -19,21 +19,23 @@ GPIO守护进程（gpio_daemon）是一个用于控制单片机复位和DFU模�
 
 ### 2.2 安装步骤
 
-1. 确保系统已安装libgpiod开发库：
-   ```bash
-   sudo apt-get update
-   sudo apt-get install -y libgpiod-dev
-   ```
+使用提供的安装脚本进行一键安装：
 
-2. 运行安装脚本：
-   ```bash
-   sudo ./install_gpio_daemon.sh
-   ```
+```bash
+sudo ./install_gpio.sh
+```
 
-3. 检查服务是否正常运行：
-   ```bash
-   systemctl status gpio-daemon.service
-   ```
+该脚本会自动执行以下操作：
+- 检查并安装必要的依赖（如果尚未安装）
+- 编译GPIO守护进程
+- 安装可执行文件到系统目录
+- 安装并启用系统服务
+- 启动服务并显示状态
+
+安装完成后，可以使用以下命令检查服务状态：
+```bash
+systemctl status gpio-daemon.service
+```
 
 ## 3. 使用方法
 
@@ -43,7 +45,7 @@ GPIO守护进程在本地8888端口提供RPC接口，可以通过以下命令进
 
 1. 查询当前状态：
    ```bash
-   echo "status" | nc localhost 8888
+   echo -n "status" | nc localhost 8888
    ```
    返回值：
    - `STATUS:NORMAL`：正常运行状态
@@ -52,21 +54,23 @@ GPIO守护进程在本地8888端口提供RPC接口，可以通过以下命令进
 
 2. 设置为正常运行状态：
    ```bash
-   echo "normal" | nc localhost 8888
+   echo -n "normal" | nc localhost 8888
    ```
    返回值：`OK:NORMAL`
 
 3. 复位单片机：
    ```bash
-   echo "reset" | nc localhost 8888
+   echo -n "reset" | nc localhost 8888
    ```
    返回值：`OK:RESET`
 
 4. 进入DFU模式：
    ```bash
-   echo "dfu" | nc localhost 8888
+   echo -n "dfu" | nc localhost 8888
    ```
    返回值：`OK:DFU`
+
+> **注意**：命令发送时必须使用 `echo -n` 以避免发送额外的换行符，否则可能导致命令无法识别。
 
 ### 3.2 服务管理
 
@@ -120,20 +124,25 @@ GPIO守护进程的测试可以在以下两种环境中进行：
 
 本项目提供了以下测试工具：
 
-1. **compile_test.sh**：编译测试脚本，用于编译GPIO守护进程
-2. **test_gpio_daemon.sh**：自动化测试脚本，用于测试GPIO守护进程的RPC接口
-3. **test_mock.c**：模拟程序，模拟GPIO守护进程的RPC接口功能
-4. **test_gpio_client.py**：Python客户端，用于测试RPC接口
+1. **test_gpio_daemon.sh**：自动化测试脚本，用于测试GPIO守护进程的RPC接口
+2. **test_mock.c**：模拟程序，模拟GPIO守护进程的RPC接口功能
+3. **test_gpio_client.py**：Python客户端，用于测试RPC接口
 
-### 5.3 编译测试
+### 5.3 自动化测试
 
-使用编译测试脚本进行编译：
+使用提供的测试脚本进行自动化测试：
 
 ```bash
-./compile_test.sh
+sudo ./test_gpio_daemon.sh
 ```
 
-该脚本会检查依赖项并编译GPIO守护进程。如果编译成功，将生成`gpio_daemon`可执行文件。
+该脚本会自动执行以下测试：
+- 检查服务状态
+- 测试状态查询
+- 测试正常模式
+- 测试复位功能
+- 测试DFU模式
+- 恢复正常模式
 
 ### 5.4 模拟测试
 
@@ -154,55 +163,26 @@ GPIO守护进程的测试可以在以下两种环境中进行：
    ./test_gpio_client.py
    ```
 
-### 5.5 实际硬件测试
+### 5.5 Python客户端测试
 
-在实际硬件上进行测试：
-
-1. 安装GPIO守护进程：
-   ```bash
-   sudo ./install_gpio_daemon.sh
-   ```
-
-2. 检查服务状态：
-   ```bash
-   systemctl status gpio-daemon.service
-   ```
-
-3. 使用测试脚本进行测试：
-   ```bash
-   sudo ./test_gpio_daemon.sh
-   ```
-
-4. 使用Python客户端进行交互式测试：
-   ```bash
-   ./test_gpio_client.py
-   ```
-
-### 5.6 命令行参数测试
-
-使用Python客户端测试命令行参数：
+Python客户端提供了更丰富的测试功能，包括交互式测试和命令行参数：
 
 ```bash
-# 查询状态
-./test_gpio_client.py -c status
+# 交互式测试
+./test_gpio_client.py
 
-# 设置为正常模式
-./test_gpio_client.py -c normal
-
-# 复位单片机
-./test_gpio_client.py -c reset
-
-# 进入DFU模式
-./test_gpio_client.py -c dfu
-
-# 运行自动测试
-./test_gpio_client.py -c auto
+# 命令行参数测试
+./test_gpio_client.py -c status    # 查询状态
+./test_gpio_client.py -c normal    # 设置为正常模式
+./test_gpio_client.py -c reset     # 复位单片机
+./test_gpio_client.py -c dfu       # 进入DFU模式
+./test_gpio_client.py -c auto      # 运行自动测试
 
 # 指定主机和端口
 ./test_gpio_client.py -H 192.168.1.100 -p 8888
 ```
 
-### 5.7 测试结果验证
+### 5.6 测试结果验证
 
 #### 正常运行状态
 
@@ -240,7 +220,21 @@ GPIO守护进程的测试可以在以下两种环境中进行：
    sudo ufw status
    ```
 
-### 6.2 编译错误
+### 6.2 命令无法识别
+
+如果使用测试脚本或手动发送命令时收到 `ERROR:UNKNOWN_COMMAND` 响应：
+
+1. 确保使用 `echo -n` 发送命令，避免额外的换行符：
+   ```bash
+   echo -n "status" | nc localhost 8888
+   ```
+
+2. 检查服务日志，查看实际接收到的命令：
+   ```bash
+   journalctl -u gpio-daemon.service -f
+   ```
+
+### 6.3 编译错误
 
 1. 检查libgpiod开发库是否已安装：
    ```bash
@@ -252,7 +246,7 @@ GPIO守护进程的测试可以在以下两种环境中进行：
    sudo apt-get install -y libgpiod-dev
    ```
 
-### 6.3 GPIO控制失败
+### 6.4 GPIO控制失败
 
 1. 检查GPIO权限：
    ```bash
