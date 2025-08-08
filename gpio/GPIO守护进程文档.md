@@ -110,7 +110,9 @@ journalctl -u gpio-daemon.service -f
 ### 4.1 GPIO引脚定义
 
 - 复位引脚（RESET_PIN）：GPIO 31
-- BOOT引脚（BOOT_PIN）：GPIO 32
+- BOOT引脚（BOOT_PIN）：GPIO 29
+
+![](引脚图.jpeg "引脚图")
 
 可以根据实际硬件连接修改源代码中的引脚定义。
 

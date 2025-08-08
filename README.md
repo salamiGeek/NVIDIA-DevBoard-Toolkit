@@ -102,6 +102,13 @@ sudo ./install_dfu.sh /path/to/dfu-util.deb
    - 后肢控制器: /dev/robotHindlimb
    - 轮式控制器: /dev/robotWheel
 
+### GPIO引脚定义
+
+- 复位引脚（RESET_PIN）：GPIO 31
+- BOOT引脚（BOOT_PIN）：GPIO 29
+
+![](gpio/引脚图.jpeg "引脚图")
+
 ## 故障排除
 
 ### CH341驱动问题
