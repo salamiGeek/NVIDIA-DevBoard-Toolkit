@@ -189,32 +189,7 @@ echo -n "test_exit" | nc localhost 8888
 
 #### C 语言客户端测试工具（可选）
 
-编译：
-```bash
-cd gpio
-gcc -Wall -O2 -o test_gpio_client test_gpio_client.c
-```
-
-用法：
-- 单次命令
-  ```bash
-  ./test_gpio_client -c status
-  ./test_gpio_client -c test
-  ./test_gpio_client -c test_exit
-  ```
-- 自动测试
-  ```bash
-  ./test_gpio_client -A
-  ```
-- 指定主机和端口
-  ```bash
-  ./test_gpio_client -H 127.0.0.1 -p 8888 -c status
-  ```
-- 交互模式（默认，无参数）
-  ```bash
-  ./test_gpio_client
-  # 输入: status / normal / reset / dfu / test / test_exit / exit
-  ```
+详见 `gpio/test_gpio_client使用说明.md`。
 
 #### Bash 客户端测试工具（可选）
 
