@@ -216,6 +216,31 @@ gcc -Wall -O2 -o test_gpio_client test_gpio_client.c
   # 输入: status / normal / reset / dfu / test / test_exit / exit
   ```
 
+#### Bash 客户端测试工具（可选）
+
+依赖：nc (netcat)
+
+用法：
+- 单次命令
+  ```bash
+  ./test_gpio_client.sh -c status
+  ./test_gpio_client.sh -c test
+  ./test_gpio_client.sh -c test_exit
+  ```
+- 自动测试
+  ```bash
+  ./test_gpio_client.sh -A
+  ```
+- 指定主机和端口
+  ```bash
+  ./test_gpio_client.sh -H 127.0.0.1 -p 8888 -c status
+  ```
+- 交互模式（默认，无参数）
+  ```bash
+  ./test_gpio_client.sh
+  # 输入: status / normal / reset / dfu / test / test_exit / exit
+  ```
+
 ### 5.7 测试结果验证
 
 #### 正常运行状态
