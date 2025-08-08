@@ -278,6 +278,38 @@ systemctl start gpio-init.service
 
 echo "√ GPIO初始化脚本已配置为开机启动"
 
+# --------------------- 安装GPIO守护进程 ---------------------
+echo "步骤9: 安装GPIO守护进程"
+
+# 检查GPIO守护进程源代码是否存在
+GPIO_DAEMON_SOURCE="${GPIO_DIR}/gpio_daemon.c"
+if [ ! -f "$GPIO_DAEMON_SOURCE" ]; then
+    echo "错误: GPIO守护进程源代码 $GPIO_DAEMON_SOURCE 不存在!"
+    exit 14
+fi
+
+# 检查GPIO守护进程服务文件是否存在
+GPIO_DAEMON_SERVICE="${GPIO_DIR}/gpio-daemon.service"
+if [ ! -f "$GPIO_DAEMON_SERVICE" ]; then
+    echo "错误: GPIO守护进程服务文件 $GPIO_DAEMON_SERVICE 不存在!"
+    exit 15
+fi
+
+# 检查GPIO守护进程安装脚本是否存在
+GPIO_DAEMON_INSTALL_SCRIPT="${GPIO_DIR}/install_gpio.sh"
+if [ ! -f "$GPIO_DAEMON_INSTALL_SCRIPT" ]; then
+    echo "错误: GPIO守护进程安装脚本 $GPIO_DAEMON_INSTALL_SCRIPT 不存在!"
+    exit 13
+fi
+
+# 切换到GPIO目录并执行安装脚本
+echo "切换到GPIO目录并安装GPIO守护进程..."
+cd "$GPIO_DIR"
+chmod +x "$GPIO_DAEMON_INSTALL_SCRIPT"
+"$GPIO_DAEMON_INSTALL_SCRIPT"
+
+echo "√ GPIO守护进程安装完成"
+
 echo "建议："
 echo "1. 重启系统以确保所有驱动正常加载"
 echo "2. 重启后检查WiFi是否正常工作"
