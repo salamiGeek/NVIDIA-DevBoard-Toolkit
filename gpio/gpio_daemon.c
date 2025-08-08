@@ -26,6 +26,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <gpiod.h>
+#include <pthread.h> // 添加pthread头文件
 
 /* 定义GPIO引脚 */
 #define PH40_RESET_PIN 106  // 复位引脚
@@ -35,6 +36,7 @@
 #define STATE_NORMAL   0   // 正常运行状态
 #define STATE_RESET    1   // 复位状态
 #define STATE_DFU      2   // DFU模式状态
+#define STATE_TEST     3   // 测试模式状态 - 每3秒跳变一次
 
 /* 引脚状态定义 */
 #define RESET_PIN_TRIGGER_STATE 1   // 复位引脚触发状态
@@ -62,6 +64,9 @@ int init_gpio();
 void set_normal_state();
 void reset_mcu();
 void enter_dfu_mode();
+void enter_test_mode();
+void exit_test_mode();
+void *test_mode_thread(void *arg);
 void handle_command(char *cmd, char *response);
 int start_rpc_server();
 
@@ -250,6 +255,79 @@ void enter_dfu_mode() {
 }
 
 /**
+ * 进入测试模式 - 每3秒跳变一次
+ * 此函数会启动一个新线程来执行跳变操作
+ */
+pthread_t test_thread = 0;
+volatile int test_running = 0;
+
+void *test_mode_thread(void *arg) {
+    syslog(LOG_INFO, "测试模式线程启动");
+    
+    while (test_running) {
+        /* 设置BOOT_PIN和RESET_PIN为高电平 */
+        gpiod_line_set_value(boot_line, 1);
+        gpiod_line_set_value(reset_line, 1);
+        syslog(LOG_INFO, "测试模式: 引脚设置为高电平");
+        
+        /* 延时3秒 */
+        sleep(3);
+        
+        if (!test_running) break;
+        
+        /* 设置BOOT_PIN和RESET_PIN为低电平 */
+        gpiod_line_set_value(boot_line, 0);
+        gpiod_line_set_value(reset_line, 0);
+        syslog(LOG_INFO, "测试模式: 引脚设置为低电平");
+        
+        /* 延时3秒 */
+        sleep(3);
+    }
+    
+    syslog(LOG_INFO, "测试模式线程退出");
+    return NULL;
+}
+
+void enter_test_mode() {
+    syslog(LOG_INFO, "执行进入测试模式...");
+    
+    /* 如果已经在测试模式，先退出 */
+    if (current_state == STATE_TEST) {
+        exit_test_mode();
+    }
+    
+    /* 设置测试运行标志 */
+    test_running = 1;
+    
+    /* 创建测试线程 */
+    if (pthread_create(&test_thread, NULL, test_mode_thread, NULL) != 0) {
+        syslog(LOG_ERR, "创建测试线程失败: %s", strerror(errno));
+        return;
+    }
+    
+    current_state = STATE_TEST;
+    syslog(LOG_INFO, "测试模式设置完成");
+}
+
+void exit_test_mode() {
+    if (current_state != STATE_TEST) {
+        return;
+    }
+    
+    /* 停止测试线程 */
+    if (test_thread) {
+        test_running = 0;
+        pthread_join(test_thread, NULL);
+        test_thread = 0;
+    }
+    
+    /* 恢复引脚状态 */
+    set_normal_state();
+    
+    syslog(LOG_INFO, "退出测试模式");
+}
+
+/**
  * 处理RPC命令
  */
 void handle_command(char *cmd, char *response) {
@@ -276,6 +354,12 @@ void handle_command(char *cmd, char *response) {
     } else if (strcmp(cmd, "dfu") == 0) {
         enter_dfu_mode();
         strcpy(response, "OK:DFU");
+    } else if (strcmp(cmd, "test") == 0) {
+        enter_test_mode();
+        strcpy(response, "OK:TEST");
+    } else if (strcmp(cmd, "test_exit") == 0) {
+        exit_test_mode();
+        strcpy(response, "OK:TEST_EXIT");
     } else {
         strcpy(response, "ERROR:UNKNOWN_COMMAND");
     }
@@ -428,6 +512,9 @@ int main(int argc, char *argv[]) {
     
     /* 清理资源 */
     syslog(LOG_NOTICE, "GPIO守护进程正在退出");
+    if (current_state == STATE_TEST) {
+        exit_test_mode();
+    }
     if (reset_line)
         gpiod_line_release(reset_line);
     if (boot_line)

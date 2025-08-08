@@ -43,30 +43,43 @@ GPIO守护进程在本地8888端口提供RPC接口，可以通过以下命令进
 
 1. 查询当前状态：
    ```bash
-   echo "status" | nc localhost 8888
+   echo -n "status" | nc localhost 8888
    ```
    返回值：
    - `STATUS:NORMAL`：正常运行状态
    - `STATUS:RESET`：复位状态
    - `STATUS:DFU`：DFU模式状态
+   - `STATUS:TEST`：测试模式状态
 
 2. 设置为正常运行状态：
    ```bash
-   echo "normal" | nc localhost 8888
+   echo -n "normal" | nc localhost 8888
    ```
    返回值：`OK:NORMAL`
 
 3. 复位单片机：
    ```bash
-   echo "reset" | nc localhost 8888
+   echo -n "reset" | nc localhost 8888
    ```
    返回值：`OK:RESET`
 
 4. 进入DFU模式：
    ```bash
-   echo "dfu" | nc localhost 8888
+   echo -n "dfu" | nc localhost 8888
    ```
    返回值：`OK:DFU`
+
+5. 进入测试模式（每3秒跳变一次）：
+   ```bash
+   echo -n "test" | nc localhost 8888
+   ```
+   返回值：`OK:TEST`
+
+6. 退出测试模式：
+   ```bash
+   echo -n "test_exit" | nc localhost 8888
+   ```
+   返回值：`OK:TEST_EXIT`
 
 ### 3.2 服务管理
 
@@ -220,6 +233,13 @@ GPIO守护进程的测试可以在以下两种环境中进行：
 - 状态查询返回：`STATUS:DFU`
 - BOOT引脚输出低电平
 - RST引脚先输出高电平，延时100ms后恢复低电平
+
+#### 测试模式
+
+- 状态查询返回：`STATUS:TEST`
+- BOOT引脚和RST引脚同时每3秒在高低电平之间切换
+- 高电平状态持续3秒，低电平状态持续3秒
+- 可以通过`test_exit`命令或`normal`命令退出测试模式
 
 ## 6. 故障排除
 
