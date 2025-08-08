@@ -304,9 +304,10 @@ fi
 
 # 切换到GPIO目录并执行安装脚本
 echo "切换到GPIO目录并安装GPIO守护进程..."
-cd "$GPIO_DIR"
+script_dir="$(dirname "$GPIO_DAEMON_INSTALL_SCRIPT")"
+script_name="$(basename "$GPIO_DAEMON_INSTALL_SCRIPT")"
 chmod +x "$GPIO_DAEMON_INSTALL_SCRIPT"
-"$GPIO_DAEMON_INSTALL_SCRIPT"
+( cd "$script_dir" && "./$script_name" )
 
 echo "√ GPIO守护进程安装完成"
 
