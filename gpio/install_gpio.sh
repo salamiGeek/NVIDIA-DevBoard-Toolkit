@@ -17,18 +17,23 @@ fi
 
 echo -e "${YELLOW}开始编译和安装GPIO守护进程...${NC}"
 
-# 安装依赖
-echo -e "${YELLOW}安装libgpiod依赖...${NC}"
-apt-get update
-apt-get install -y libgpiod-dev
-
 # 检查libgpiod开发库是否已安装
-if ! pkg-config --exists libgpiod 2>/dev/null; then
-    echo -e "${RED}错误: libgpiod开发库安装失败${NC}"
-    exit 1
+if pkg-config --exists libgpiod 2>/dev/null; then
+    echo -e "${GREEN}libgpiod开发库已安装，跳过安装步骤${NC}"
+else
+    # 安装依赖
+    echo -e "${YELLOW}安装libgpiod依赖...${NC}"
+    apt-get update
+    apt-get install -y libgpiod-dev
+    
+    # 再次检查是否安装成功
+    if ! pkg-config --exists libgpiod 2>/dev/null; then
+        echo -e "${RED}错误: libgpiod开发库安装失败${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}libgpiod开发库安装成功${NC}"
 fi
-
-echo -e "${GREEN}libgpiod开发库安装成功${NC}"
 
 # 编译GPIO守护进程
 echo -e "${YELLOW}编译GPIO守护进程...${NC}"
