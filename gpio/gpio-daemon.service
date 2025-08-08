@@ -1,0 +1,14 @@
+[Unit]
+Description=GPIO守护进程，用于控制单片机的复位和DFU模式
+After=network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/local/bin/gpio_daemon
+Restart=always
+RestartSec=10
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target 
